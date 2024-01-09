@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kitchen sink in a file</title>
+</head>
+<body>
+<hr>
+<div>
+    <h2>DTMF</h2>
+    <span>Dual-tone multi-frequency signaling is a telecommunication signaling system using the voice-frequency band over telephone lines between telephone equipment and other communications devices and switching centers.</span>
+    <script>
+        let playTone = function (f1 = 440, f2 = 445, length = 0.25) {
+            // Set up
+            const context = new AudioContext();
+            const gain = context.createGain();
+            gain.gain.value = 0.2;
+            const oscillatorA = context.createOscillator();
+            oscillatorA.frequency.value = f1
+            oscillatorA.connect(gain).connect(context.destination);
+            const oscillatorB = context.createOscillator();
+            oscillatorB.frequency.value = f2;
+            oscillatorB.connect(gain).connect(context.destination);
+
+            // Start
+            gain.gain.setValueAtTime(1, context.currentTime);
+            oscillatorA.start();
+            oscillatorB.start();
+
+            // Stop
+            const stopTime = context.currentTime + length;
+            gain.gain.setValueAtTime(1, stopTime - 0.005)
+            gain.gain.linearRampToValueAtTime(0, stopTime)
+            oscillatorA.stop(context.currentTime + .8)
+            oscillatorB.stop(context.currentTime + .8)
+        };
+        // o.start()
+    </script>
+    <br><br>
+    <table border="black" cellpadding="32" cellspacing="16">
+        <tr>
+            <td onmousedown="playTone(697,1209, 0.25)">1</td>
+            <td onmousedown="playTone(697,1336, 0.25)">2</td>
+            <td onmousedown="playTone(697,1477, 0.25)">3</td>
+            <td onmousedown="playTone(697,1633, 0.25)">A</td>
+        </tr>
+        <tr>
+            <td onmousedown="playTone(770,1209, 0.25)">4</td>
+            <td onmousedown="playTone(770,1336, 0.25)">5</td>
+            <td onmousedown="playTone(770,1477, 0.25)">6</td>
+            <td onmousedown="playTone(770,1633, 0.25)">B</td>
+        </tr>
+        <tr>
+            <td onmousedown="playTone(852,1209, 0.25)">7</td>
+            <td onmousedown="playTone(852,1336, 0.25)">8</td>
+            <td onmousedown="playTone(852,1477, 0.25)">9</td>
+            <td onmousedown="playTone(852,1633, 0.25)">C</td>
+        </tr>
+        <tr>
+            <td onmousedown="playTone(941,1209, 0.25)">*</td>
+            <td onmousedown="playTone(941,1336, 0.25)">0</td>
+            <td onmousedown="playTone(941,1477, 0.25)">#</td>
+            <td onmousedown="playTone(941,1633, 0.25)">D</td>
+        </tr>
+    </table>
+</div>
+<hr>
+(c)2024 fuho
+</body>
+</html>
