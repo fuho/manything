@@ -2,11 +2,51 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Kitchen sink in a file</title>
+    <title>Not quite everything... yet</title>
+    <style>
+        html {
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
+        body, h1, h2, h3, h4, h5, h6, p, ol, ul {
+            margin: 0;
+            padding: 0;
+            font-weight: normal;
+            font-family: Consolas, sans-serif;
+        }
+
+        ol, ul {
+            list-style: none;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .thing {
+            display: block;
+            margin: 16px;
+            background: lightgray;
+            padding: 16px;
+            border-radius: 16px;
+        }
+
+        .thing h2 {
+            font-weight: bold;
+            font-size: xx-large;
+            margin-bottom: 4px;
+        }
+    </style>
 </head>
 <body>
 <hr>
-<div>
+<div class="thing" id="dtmf">
     <h2>DTMF</h2>
     <span>Dual-tone multi-frequency signaling is a telecommunication signaling system using the voice-frequency band over telephone lines between telephone equipment and other communications devices and switching centers.</span>
     <script>
@@ -34,37 +74,54 @@
             oscillatorA.stop(context.currentTime + .8)
             oscillatorB.stop(context.currentTime + .8)
         };
-        // o.start()
     </script>
     <br><br>
-    <table border="black" cellpadding="32" cellspacing="16">
-        <tr>
-            <td onmousedown="playTone(697,1209, 0.25)">1</td>
-            <td onmousedown="playTone(697,1336, 0.25)">2</td>
-            <td onmousedown="playTone(697,1477, 0.25)">3</td>
-            <td onmousedown="playTone(697,1633, 0.25)">A</td>
-        </tr>
-        <tr>
-            <td onmousedown="playTone(770,1209, 0.25)">4</td>
-            <td onmousedown="playTone(770,1336, 0.25)">5</td>
-            <td onmousedown="playTone(770,1477, 0.25)">6</td>
-            <td onmousedown="playTone(770,1633, 0.25)">B</td>
-        </tr>
-        <tr>
-            <td onmousedown="playTone(852,1209, 0.25)">7</td>
-            <td onmousedown="playTone(852,1336, 0.25)">8</td>
-            <td onmousedown="playTone(852,1477, 0.25)">9</td>
-            <td onmousedown="playTone(852,1633, 0.25)">C</td>
-        </tr>
-        <tr>
-            <td onmousedown="playTone(941,1209, 0.25)">*</td>
-            <td onmousedown="playTone(941,1336, 0.25)">0</td>
-            <td onmousedown="playTone(941,1477, 0.25)">#</td>
-            <td onmousedown="playTone(941,1633, 0.25)">D</td>
-        </tr>
-    </table>
+    <div class="dial_pad">
+        <button onmousedown="playTone(697,1209, 0.25)">1</button>
+        <button onmousedown="playTone(697,1336, 0.25)">2</button>
+        <button onmousedown="playTone(697,1477, 0.25)">3</button>
+        <button onmousedown="playTone(697,1633, 0.25)">A</button>
+        <button onmousedown="playTone(770,1209, 0.25)">4</button>
+        <button onmousedown="playTone(770,1336, 0.25)">5</button>
+        <button onmousedown="playTone(770,1477, 0.25)">6</button>
+        <button onmousedown="playTone(770,1633, 0.25)">B</button>
+        <button onmousedown="playTone(852,1209, 0.25)">7</button>
+        <button onmousedown="playTone(852,1336, 0.25)">8</button>
+        <button onmousedown="playTone(852,1477, 0.25)">9</button>
+        <button onmousedown="playTone(852,1633, 0.25)">C</button>
+        <button onmousedown="playTone(941,1209, 0.25)">*</button>
+        <button onmousedown="playTone(941,1336, 0.25)">0</button>
+        <button onmousedown="playTone(941,1477, 0.25)">#</button>
+        <button onmousedown="playTone(941,1633, 0.25)">D</button>
+    </div>
+
+    <style>
+        .thing#dtmf *.dial_pad {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            width: 320px;
+            background: dimgray;
+            border-radius: 8px;
+            padding: 8px;
+        }
+
+        .thing#dtmf *.dial_pad > button  {
+            flex: 21%;
+            width: 64px;
+            height: 64px;
+            font-family: Consolas, ui-sans-serif;
+            font-weight: bold;
+            font-size: xx-large;
+            padding: 4px;
+            margin: 4px;
+            /*border-radius: 8px;*/
+        }
+
+
+    </style>
 </div>
 <hr>
-(c)2024 fuho
+(c) 2024 fuho
 </body>
 </html>
