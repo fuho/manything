@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!--suppress HtmlUnknownTag -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -48,16 +49,39 @@
 <hr>
 <div class="thing" id="frame_rate_display">
     <h2> What is the current framerate?</h2>
+    <button onclick="toggleFrameRateCounter()" id="frame_rate_control"></button>
     <span id="current_frame_rate">UNKNOWN</span>
     <script>
-        const display = document.querySelector("#current_frame_rate");
+        const frameRateDisplay = document.querySelector("#current_frame_rate");
+        const frameRateControl = document.querySelector("#frame_rate_control");
+        const labels = ["⏹️", "▶️"] // 0 - running, 1 - stopped
+        let isRunning = false;
         const getFPS = () =>
             new Promise(resolve =>
                 requestAnimationFrame(t1 =>
                     requestAnimationFrame(t2 => resolve(Math.round(1000 / (t2 - t1))))
                 )
             )
-        getFPS().then(fps => display.innerHTML = `${fps} FPS`);
+
+        const startFrameRateCounter = async () => {
+            while (isRunning) {
+                let fps = await getFPS();
+                frameRateDisplay.innerHTML = `${fps} FPS`;
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+        }
+
+        const toggleFrameRateCounter = function () {
+            isRunning = !isRunning;
+            if (isRunning) {
+                startFrameRateCounter()
+                frameRateControl.innerText = labels[0];
+            } else {
+                frameRateControl.innerText = labels[1];
+                frameRateDisplay.innerText = "STOPPED";
+            }
+        };
+        toggleFrameRateCounter();
     </script>
 </div>
 <div class="thing" id="dtmf">
@@ -120,7 +144,7 @@
             padding: 8px;
         }
 
-        .thing#dtmf *.dial_pad > button  {
+        .thing#dtmf *.dial_pad > button {
             flex: 21%;
             width: 64px;
             height: 64px;
