@@ -46,6 +46,20 @@
 </head>
 <body>
 <hr>
+<div class="thing" id="frame_rate_display">
+    <h2> What is the current framerate?</h2>
+    <span id="current_frame_rate">UNKNOWN</span>
+    <script>
+        const display = document.querySelector("#current_frame_rate");
+        const getFPS = () =>
+            new Promise(resolve =>
+                requestAnimationFrame(t1 =>
+                    requestAnimationFrame(t2 => resolve(Math.round(1000 / (t2 - t1))))
+                )
+            )
+        getFPS().then(fps => display.innerHTML = `${fps} FPS`);
+    </script>
+</div>
 <div class="thing" id="dtmf">
     <h2>DTMF</h2>
     <span>Dual-tone multi-frequency signaling is a telecommunication signaling system using the voice-frequency band over telephone lines between telephone equipment and other communications devices and switching centers.</span>
@@ -115,10 +129,7 @@
             font-size: xx-large;
             padding: 4px;
             margin: 4px;
-            /*border-radius: 8px;*/
         }
-
-
     </style>
 </div>
 <hr>
