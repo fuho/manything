@@ -46,7 +46,94 @@
     </style>
 </head>
 <body>
-<hr>
+<!--#################################################################################################################-->
+<div class="thing" id="basic_canvas_work">
+    <h2>Let's draw something on canvas</h2>
+    <div>... and see how the framerate gets clamped...</div>
+    <button onclick="startAnimatingSquare()">START</button>
+    <button onclick="stopAnimatingSquare()">STOP</button>
+    <select name="globalCompositeOperation" onchange="setGlobalCompositeOperation(this.value)">
+        <option value="source-over">source-over</option>
+        <option value="source-in">source-in</option>
+        <option value="source-out">source-out</option>
+        <option value="source-atop">source-atop</option>
+        <option value="destination-over">destination-over</option>
+        <option value="destination-in">destination-in</option>
+        <option value="destination-out">destination-out</option>
+        <option value="destination-atop">destination-atop</option>
+        <option value="lighter">lighter</option>
+        <option value="copy">copy</option>
+        <option value="xor">xor</option>
+        <option value="multiply">multiply</option>
+        <option value="screen">screen</option>
+        <option value="overlay">overlay</option>
+        <option value="darken">darken</option>
+        <option value="lighten">lighten</option>
+        <option value="color-dodge">color-dodge</option>
+        <option value="color-burn">color-burn</option>
+        <option value="hard-light">hard-light</option>
+        <option value="soft-light">soft-light</option>
+        <option value="difference">difference</option>
+        <option value="exclusion">exclusion</option>
+        <option value="hue">hue</option>
+        <option value="saturation">saturation</option>
+        <option value="color">color</option>
+        <option value="luminosity">luminosity</option>
+    </select>
+    <br>
+    <canvas id="basic_canvas">
+        Y NO PICTURE
+    </canvas>
+    <script>
+        const canvas = document.querySelector("#basic_canvas");
+        const canvasSize = 256;
+        const squaresPerSide = 16;
+
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
+        const ctx = canvas.getContext("2d");
+        ctx.globalCompositeOperation = 'source-over';
+        const colors = ["#F008", "#0F08", "#00F8"];
+        let currentColorIndex = 0;
+        let sideLength = canvasSize / squaresPerSide;
+        let squaresDrawnCount = 0;
+        let x = 0;
+        let y = 0;
+        let animationRequestId = null;
+
+        const render = () => {
+            ctx.fillStyle = colors[currentColorIndex];
+            ctx.fillRect(x * sideLength, y * sideLength, sideLength, sideLength);
+            squaresDrawnCount++;
+            if ((squaresDrawnCount % (squaresPerSide ** 2)) === 0) {
+                currentColorIndex = (currentColorIndex + 1) % colors.length;
+            }
+            y = x + 1 >= squaresPerSide ? (y + 1) % squaresPerSide : y;
+            x = (x + 1) % squaresPerSide;
+        }
+
+        function repeatOften() {
+            render();
+            // new Promise(resolve => setTimeout(resolve, 250)).then(() => {
+            //     animationRequestId = requestAnimationFrame(repeatOften);
+            // });
+            animationRequestId = requestAnimationFrame(repeatOften);
+        }
+
+        const stopAnimatingSquare = () => {
+            cancelAnimationFrame(animationRequestId);
+        }
+        const startAnimatingSquare = () => {
+            animationRequestId = requestAnimationFrame(repeatOften);
+        }
+        const setGlobalCompositeOperation = (operation) => {
+            ctx.globalCompositeOperation = operation;
+        }
+
+        startAnimatingSquare()
+    </script>
+</div>
+<!--#################################################################################################################-->
 <div class="thing" id="frame_rate_display">
     <h2> What is the current framerate?</h2>
     <button onclick="toggleFrameRateCounter()" id="frame_rate_control"></button>
@@ -84,6 +171,7 @@
         toggleFrameRateCounter();
     </script>
 </div>
+<!--#################################################################################################################-->
 <div class="thing" id="dtmf">
     <h2>DTMF</h2>
     <span>Dual-tone multi-frequency signaling is a telecommunication signaling system using the voice-frequency band over telephone lines between telephone equipment and other communications devices and switching centers.</span>
@@ -148,7 +236,7 @@
             flex: 21%;
             width: 64px;
             height: 64px;
-            font-family: Consolas, ui-sans-serif;
+            font-family: Consolas, sans-serif;
             font-weight: bold;
             font-size: xx-large;
             padding: 4px;
