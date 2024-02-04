@@ -47,6 +47,101 @@
 </head>
 <body>
 <!--#################################################################################################################-->
+<div class="thing" id="canvas-ngons-experiments">
+    <h2> Let's draw some n-gons...</h2>
+    <canvas id="canvas-ngons">
+        Y NO PICTURE?
+    </canvas>
+    <script>{
+        const canvas = document.querySelector("#canvas-ngons");
+        const canvasSize = 512;
+
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
+        const ctx = canvas.getContext("2d");
+
+        const drawNGon = (ctx, n, centerX, centerY, radius, rotation = 0) => {
+            // console.log(`drawNGon - params: ${n} ${centerY} ${centerY} ${radius}`);
+            const coords = [];
+            for (let i = 0; i < n; i++) {
+                const angle = Math.PI * ((rotation + 360 * i / n) / 180);
+                const x = centerX + radius * Math.sin(angle);
+                const y = centerY - radius * Math.cos(angle);
+                coords.push({x, y})
+            }
+            ctx.beginPath();
+            ctx.moveTo(coords[0].x, coords[0].y);
+            // console.log(`Will draw ${n}-gon at [${centerX},${centerY}] at coords ${coords}.`);
+            for (let i = 1; i < coords.length; i++) {
+                ctx.lineTo(coords[i].x, coords[i].y);
+            }
+            ctx.lineTo(coords[0].x, coords[0].y);
+            ctx.stroke()
+        };
+        const drawBox = (ctx, centerX, centerY, radius, rotation = 0) => {
+            drawNGon(ctx, 2, centerX, centerY, radius, rotation);
+            drawNGon(ctx, 2, centerX, centerY, radius, rotation + 60);
+            drawNGon(ctx, 2, centerX, centerY, radius, rotation - 60);
+            drawNGon(ctx, 6, centerX, centerY, radius, rotation);
+        }
+
+        const drawTriangle = (ctx, centerX, centerY, radius, rotation = 0) => {
+            drawNGon(ctx, 3, centerX, centerY, radius, rotation);
+        }
+
+        // const drawGrid = (drawFun, drawFunParams, xSpacingFun, ySpacingFun, width, height) => {
+        //     for (x = 0; x < width; x++) {
+        //         for (y = 0; y < height; y++) {
+        //             drawFun(ctx, ...drawFunParams)
+        //         }
+        //     }
+        // };
+
+        const r = 64;
+
+        // drawGrid(drawTriangle,[ctx,10,10,10],(x)=>[32,16][x],(y)=>[50,100,75][y],10,10);
+
+        drawNGon(ctx, 2, 250, 250, r);
+        drawNGon(ctx, 2, 250, 250, r, 5);
+        drawNGon(ctx, 2, 250, 250, r, 10);
+        drawNGon(ctx, 2, 250, 250, r, 20);
+        drawNGon(ctx, 2, 250, 250, r, 40);
+        drawNGon(ctx, 2, 250, 250, r, 80);
+
+        drawTriangle(ctx, 127, 333, 64)
+        drawTriangle(ctx, 127, 333, 45, 15)
+        drawTriangle(ctx, 127, 333, 30, 30)
+        drawTriangle(ctx, 127, 333, 20, 45)
+        drawTriangle(ctx, 127, 333, 13, 60)
+
+        drawNGon(ctx, 4, 370, 127, 120, 0);
+        drawNGon(ctx, 4, 370, 127, 110, 5);
+        drawNGon(ctx, 4, 370, 127, 100, 0);
+        drawNGon(ctx, 4, 370, 127, 90, -5);
+        drawNGon(ctx, 4, 370, 127, 80, -10);
+        drawNGon(ctx, 4, 370, 127, 70, -5);
+        drawNGon(ctx, 4, 370, 127, 60, 0);
+        drawNGon(ctx, 4, 370, 127, 50, 5);
+        drawNGon(ctx, 4, 370, 127, 40, 10);
+        drawNGon(ctx, 4, 370, 127, 30, 15);
+        drawNGon(ctx, 4, 370, 127, 20, 10);
+        drawNGon(ctx, 4, 370, 127, 10, 5);
+
+        drawNGon(ctx, 6, 420, 350, 100, 0);
+        drawNGon(ctx, 6, 420, 350, 80, 30);
+        drawNGon(ctx, 6, 420, 350, 60, 0);
+        drawNGon(ctx, 6, 420, 350, 40, 30);
+        drawNGon(ctx, 6, 420, 350, 20, 0);
+        drawNGon(ctx, 6, 420, 350, 40, 0);
+
+
+        drawBox(ctx, 75, 75, r);
+        drawBox(ctx, 75 + 2 * r * Math.cos(Math.PI * 30 / 180), 75, r);
+        drawBox(ctx, 75 + r * Math.cos(Math.PI * 30 / 180), 75 + r + r * Math.sin(Math.PI * 30 / 180), r);
+    }
+    </script>
+</div>
+<!--#################################################################################################################-->
 <div class="thing" id="basic_canvas_work">
     <h2>Let's draw something on canvas</h2>
     <div>... and see how the framerate gets clamped...</div>
