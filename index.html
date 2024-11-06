@@ -47,6 +47,106 @@
 </head>
 <body>
 <!--#################################################################################################################-->
+<div class="thing" id="thing-particles-01">
+    <h2> Click for particles!</h2>
+    <canvas id="canvas-particles-01">
+        Y NO PICTURE?
+    </canvas>
+    <script>{
+        const canvas = document.querySelector("#canvas-particles-01");
+        const canvasSize = 512;
+
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
+        const ctx = canvas.getContext("2d");
+
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 5; // Random velocity in X direction
+                this.vy = (Math.random() - 0.5) * 5; // Random velocity in Y direction
+                this.size = Math.random() * 3 + 2;
+            }
+
+            update() {
+                // Repel from walls and attract/repel other particles
+                const distanceFromEdgeX = Math.min(this.x, canvas.width - this.x);
+                const distanceFromEdgeY = Math.min(this.y, canvas.height - this.y);
+
+                if (distanceFromEdgeX < 5) {
+                    this.vx *= -1 * 0.99;
+                }
+                if (distanceFromEdgeY < 5) {
+                    this.vy *= -1 * 0.99;
+                }
+
+                // Update velocity due to proximity with other particles
+                for (let particle of particles) {
+                    if (particle !== this) {
+                        const dx = particle.x - this.x;
+                        const dy = particle.y - this.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < 100 && distance > 20) { // Interaction range
+                            const forceMultiplier = 0.05 / distance; // Inverse square law for attraction/repulsion
+
+                            this.vx += dx * forceMultiplier;
+                            this.vy += dy * forceMultiplier;
+                        }
+                    }
+                }
+
+                // Update position
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Constrain within canvas bounds (soft limit)
+                if (this.x < 0) this.x = -this.x;
+                if (this.x > canvas.width) this.x = 2 * canvas.width - this.x;
+                if (this.y < 0) this.y = -this.y;
+                if (this.y > canvas.height) this.y = 2 * canvas.height - this.y;
+            }
+
+            render() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(153, 0, 76, 0.8)'; // Brownish color for fart particles
+                ctx.fill();
+            }
+        }
+
+        let particles = [];
+        const maxParticlesPerClick = 5;
+        const minParticlesPerClick = 1;
+
+        canvas.addEventListener('click', (e) => {
+            const numParticles = Math.floor(Math.random() * (maxParticlesPerClick - minParticlesPerClick + 1)) + minParticlesPerClick;
+            for (let i = 0; i < numParticles; i++) {
+                const x = e.clientX || e.touches[0].clientX;
+                const y = e.clientY || e.touches[0].clientY;
+                particles.push(new Particle(x, y));
+            }
+        });
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let particle of particles) {
+                particle.update();
+                particle.render();
+            }
+         for (let particle of particles) {
+                particle.update();
+                particle.render();
+            }
+            requestAnimationFrame(animate);
+        }
+
+        requestAnimationFrame(animate)
+    }
+    </script>
+</div>
+<!--#################################################################################################################-->
 <div class="thing" id="canvas-ngons-experiments">
     <h2> Let's draw some n-gons...</h2>
     <canvas id="canvas-ngons">
