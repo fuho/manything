@@ -1,0 +1,1 @@
+# [manything.fun](https://manything.fun)
