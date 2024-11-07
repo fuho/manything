@@ -49,12 +49,27 @@
 <!--#################################################################################################################-->
 <div class="thing" id="thing-particles-01">
     <h2> Click for particles!</h2>
+    <div id="05_controls">
+        <label for="particle_trail_length">Particle trail:</label>
+        <input type="range" id="particle_trail_length" min="0" max="49" step="1" value="0">
+        <span id="particle_trail_length_display">0</span>
+    </div>
     <canvas id="canvas-particles-01">
         Y NO PICTURE?
     </canvas>
     <script>{
-        const canvas = document.querySelector("#canvas-particles-01");
         const canvasSize = 512;
+        const canvas = document.querySelector("#canvas-particles-01");
+        const slider = document.querySelector("#particle_trail_length");
+        const trailLengthDisplay = document.querySelector("#particle_trail_length_display");
+
+        let trailLength = 0;
+
+
+        slider.addEventListener('input', (e) => {
+            trailLength = Math.floor(-1 +  Math.pow(e.target.value + 1, 1.15));
+            trailLengthDisplay.textContent = trailLength;
+        });
 
         canvas.width = canvasSize;
         canvas.height = canvasSize;
@@ -67,6 +82,7 @@
                 this.vx = (Math.random() - 0.5) * 5; // Random velocity in X direction
                 this.vy = (Math.random() - 0.5) * 5; // Random velocity in Y direction
                 this.size = Math.random() * 3 + 2;
+                this.history = [];
             }
 
             update() {
@@ -97,6 +113,13 @@
                     }
                 }
 
+                // Add current location to history and trim history to be no longer thanTrail length
+                if (this.history.unshift([this.x, this.y]) > trailLength) {
+                    while (this.history.length > trailLength) {
+                        this.history.pop()
+                    }
+                }
+
                 // Update position
                 this.x += this.vx;
                 this.y += this.vy;
@@ -109,6 +132,23 @@
             }
 
             render() {
+                this.renderParticle();
+                if (trailLength > 0) this.renderTrail();
+            }
+
+            renderTrail() {
+                ctx.strokeStyle = 'rgba(255, 0, 0, 0.1)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(this.history[0][0], this.history[0][1]);
+                for (let point of this.history) {
+                    if (!this.history[0]) continue; // Skip first point
+                    ctx.lineTo(point[0], point[1]);
+                }
+                ctx.stroke();
+            }
+
+            renderParticle() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fillStyle = 'rgba(153, 0, 76, 0.8)'; // Brownish color for fart particles
@@ -129,22 +169,21 @@
             }
         });
 
-        function animate() {
+        function animateFrame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let particle of particles) {
                 particle.update();
+            }
+            for (let particle of particles) {
                 particle.render();
             }
-         for (let particle of particles) {
-                particle.update();
-                particle.render();
-            }
-            requestAnimationFrame(animate);
+            requestAnimationFrame(animateFrame);
         }
 
-        requestAnimationFrame(animate)
+        requestAnimationFrame(animateFrame)
     }
     </script>
+
 </div>
 <!--#################################################################################################################-->
 <div class="thing" id="canvas-ngons-experiments">
