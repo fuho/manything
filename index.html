@@ -51,8 +51,9 @@
     <h2> Click for particles!</h2>
     <div id="05_controls">
         <label for="particle_trail_length">Particle trail:</label>
-        <input type="range" id="particle_trail_length" min="0" max="49" step="1" value="0">
-        <span id="particle_trail_length_display">0</span>
+        <input type="range" id="particle_trail_length" min="0" max="100" step="1" value="20">
+        <span id="particle_trail_length_display">20</span>
+        <input id="particle_btn_clear" type="button" value="CLEAR">
     </div>
     <canvas id="canvas-particles-01">
         Y NO PICTURE?
@@ -60,59 +61,33 @@
     <script>{
         const canvasSize = 512;
         const canvas = document.querySelector("#canvas-particles-01");
-        const slider = document.querySelector("#particle_trail_length");
         const trailLengthDisplay = document.querySelector("#particle_trail_length_display");
-
-        let trailLength = 0;
-
-
-        slider.addEventListener('input', (e) => {
-            trailLength = Math.floor(-1 +  Math.pow(e.target.value + 1, 1.15));
-            trailLengthDisplay.textContent = trailLength;
-        });
-
-        canvas.width = canvasSize;
-        canvas.height = canvasSize;
         const ctx = canvas.getContext("2d");
+        const maxParticlesPerClick = 1;
+        const minParticlesPerClick = 1;
+        const bounceLoss = 0.1;
+        const MASS_MULTIPLIER = 1e4;
+        const DISTANCE_MULTIPLIER = 1e-1;
+        const FORCE_MULTIPLIER = 1e4;
+        const G = 6.67430e-11;
+
+        let particles = [];
+        let trailLength = 20;
 
         class Particle {
-            constructor(x, y) {
+            constructor(x, y, vx = 0, vy = 0) {
                 this.x = x;
                 this.y = y;
-                this.vx = (Math.random() - 0.5) * 5; // Random velocity in X direction
-                this.vy = (Math.random() - 0.5) * 5; // Random velocity in Y direction
+                this.vx = vx
+                this.vy = vy
+                // this.vx = (Math.random() - 0.5) * 10; // Random velocity in X direction
+                // this.vy = (Math.random() - 0.5) * 10; // Random velocity in Y direction
                 this.size = Math.random() * 3 + 2;
+                this.mass = MASS_MULTIPLIER * (4 / 3) * Math.PI * Math.pow(this.size / 2, 3)
                 this.history = [];
             }
 
             update() {
-                // Repel from walls and attract/repel other particles
-                const distanceFromEdgeX = Math.min(this.x, canvas.width - this.x);
-                const distanceFromEdgeY = Math.min(this.y, canvas.height - this.y);
-
-                if (distanceFromEdgeX < 5) {
-                    this.vx *= -1 * 0.99;
-                }
-                if (distanceFromEdgeY < 5) {
-                    this.vy *= -1 * 0.99;
-                }
-
-                // Update velocity due to proximity with other particles
-                for (let particle of particles) {
-                    if (particle !== this) {
-                        const dx = particle.x - this.x;
-                        const dy = particle.y - this.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-
-                        if (distance < 100 && distance > 20) { // Interaction range
-                            const forceMultiplier = 0.05 / distance; // Inverse square law for attraction/repulsion
-
-                            this.vx += dx * forceMultiplier;
-                            this.vy += dy * forceMultiplier;
-                        }
-                    }
-                }
-
                 // Add current location to history and trim history to be no longer thanTrail length
                 if (this.history.unshift([this.x, this.y]) > trailLength) {
                     while (this.history.length > trailLength) {
@@ -120,15 +95,44 @@
                     }
                 }
 
-                // Update position
-                this.x += this.vx;
-                this.y += this.vy;
+                // Update velocity due to proximity with other particles
+                for (let particle of particles) {
+                    if (particle === this) continue
 
-                // Constrain within canvas bounds (soft limit)
-                if (this.x < 0) this.x = -this.x;
-                if (this.x > canvas.width) this.x = 2 * canvas.width - this.x;
-                if (this.y < 0) this.y = -this.y;
-                if (this.y > canvas.height) this.y = 2 * canvas.height - this.y;
+                    const dx = particle.x - this.x;
+                    const dy = particle.y - this.y;
+                    const distance = DISTANCE_MULTIPLIER * Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 1000 && distance > 0) { // Interaction range
+                        const f = G * ((this.mass * particle.mass) / (Math.pow(distance, 2)))
+                        this.vx += dx * FORCE_MULTIPLIER * f / this.mass;
+                        this.vy += dy * FORCE_MULTIPLIER * f / this.mass;
+                    }
+                }
+
+                // Update position
+                let newX = this.x + this.vx;
+                let newY = this.y + this.vy;
+
+                if (newX >= canvas.width) {
+                    newX = canvas.width - (newX - canvas.width);
+                    this.vx *= -1 * (1 - bounceLoss);
+                }
+                if (newY >= canvas.height) {
+                    newY = canvas.height - (newY - canvas.height);
+                    this.vy *= -1 * (1 - bounceLoss);
+                }
+                if (newX <= 0) {
+                    newX = -newX;
+                    this.vx *= -1 * (1 - bounceLoss);
+                }
+                if (newY <= 0) {
+                    newY = -newY;
+                    this.vy *= -1 * (1 - bounceLoss);
+                }
+                this.x = newX;
+                this.y = newY;
+
             }
 
             render() {
@@ -156,18 +160,14 @@
             }
         }
 
-        let particles = [];
-        const maxParticlesPerClick = 5;
-        const minParticlesPerClick = 1;
-
-        canvas.addEventListener('click', (e) => {
-            const numParticles = Math.floor(Math.random() * (maxParticlesPerClick - minParticlesPerClick + 1)) + minParticlesPerClick;
-            for (let i = 0; i < numParticles; i++) {
-                const x = e.clientX || e.touches[0].clientX;
-                const y = e.clientY || e.touches[0].clientY;
-                particles.push(new Particle(x, y));
-            }
-        });
+        function getXY(e) {
+            const source = e.touches ? e.touches[0] : e;
+            const {clientX, clientY} = source;
+            const {left, top} = canvas.getBoundingClientRect();
+            const x = clientX - left;
+            const y = clientY - top;
+            return {x, y};
+        }
 
         function animateFrame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -180,6 +180,32 @@
             requestAnimationFrame(animateFrame);
         }
 
+
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
+
+        canvas.addEventListener('click', (e) => {
+            const numParticles = Math.floor(Math.random() * (maxParticlesPerClick - minParticlesPerClick + 1)) + minParticlesPerClick;
+            for (let i = 0; i < numParticles; i++) {
+                const xy = getXY(e); // Get the correct X and Y coordinates
+                particles.push(new Particle(xy.x, xy.y));
+            }
+        });
+
+        document.querySelector("#particle_btn_clear").addEventListener('click', (e) => {
+            particles = []
+        });
+
+        document.querySelector("#particle_trail_length").addEventListener('input', (e) => {
+            trailLength = Math.floor(-1 + Math.pow((e.target.value / 10 + 1), 3));
+            trailLengthDisplay.textContent = trailLength;
+        });
+
+        particles.push(new Particle(0,0))
+        particles.push(new Particle(511,511))
+        particles.push(new Particle(123,456))
+
+        animateFrame();
         requestAnimationFrame(animateFrame)
     }
     </script>
